@@ -1,0 +1,160 @@
+{
+  "fileType": "XLogoProgram",
+  "version": "1.0",
+  "created": "2026-09-26T21:31:13.076Z",
+  "activeMode": "B",
+  "console": {
+    "editorCode": "pc 7 pg 5 poncolor 4 repite 4 [ av 100 gd 90 ] gi 90 borra re 50",
+    "history": []
+  },
+  "blockly": {
+    "json": {
+      "blocks": {
+        "languageVersion": 0,
+        "blocks": [
+          {
+            "type": "logo_when_run",
+            "id": "h-fzxNHlh6}-w]kXoCT=",
+            "x": 201,
+            "y": 76,
+            "next": {
+              "block": {
+                "type": "logo_set_color",
+                "id": "S(`(qJ5=pEu7QR=qPst,",
+                "fields": {
+                  "COLOR": "7"
+                },
+                "next": {
+                  "block": {
+                    "type": "logo_set_width",
+                    "id": "_h^LT{EscXL?(|~{[wfk",
+                    "inputs": {
+                      "WIDTH": {
+                        "shadow": {
+                          "type": "math_number",
+                          "id": "KYaT4l0)%wLnfiecH!Jv",
+                          "fields": {
+                            "NUM": 5
+                          }
+                        }
+                      }
+                    },
+                    "next": {
+                      "block": {
+                        "type": "logo_set_color_num",
+                        "id": "{!:C]o4rKWegVD1sjE*p",
+                        "inputs": {
+                          "COLOR": {
+                            "shadow": {
+                              "type": "math_number",
+                              "id": "*wE5/lo%|LCxfDZhtnlq",
+                              "fields": {
+                                "NUM": 4
+                              }
+                            }
+                          }
+                        },
+                        "next": {
+                          "block": {
+                            "type": "logo_repeat",
+                            "id": "2;{0JCV1Tf1vD9]]3COX",
+                            "inputs": {
+                              "TIMES": {
+                                "shadow": {
+                                  "type": "math_number",
+                                  "id": "z+m6kLqBfFR9sxX1rN*a",
+                                  "fields": {
+                                    "NUM": 4
+                                  }
+                                }
+                              },
+                              "DO": {
+                                "block": {
+                                  "type": "logo_forward",
+                                  "id": "gNA]])CpP*~W5m::?rP[",
+                                  "inputs": {
+                                    "DIST": {
+                                      "shadow": {
+                                        "type": "math_number",
+                                        "id": "Dn.[ZP=#rGe~@U;NMuKc",
+                                        "fields": {
+                                          "NUM": 100
+                                        }
+                                      }
+                                    }
+                                  },
+                                  "next": {
+                                    "block": {
+                                      "type": "logo_turn_right",
+                                      "id": "Iu[i%G,1VCuzr]^o++M.",
+                                      "inputs": {
+                                        "ANGLE": {
+                                          "shadow": {
+                                            "type": "math_number",
+                                            "id": "W=$]fu!Cu?MDp]_p%a}/",
+                                            "fields": {
+                                              "NUM": 90
+                                            }
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            },
+                            "next": {
+                              "block": {
+                                "type": "logo_turn_left",
+                                "id": "7DO1RB@2j)Rqptj8T+`K",
+                                "inputs": {
+                                  "ANGLE": {
+                                    "shadow": {
+                                      "type": "math_number",
+                                      "id": "X:b.CSu@*+?OM[%_1.)#",
+                                      "fields": {
+                                        "NUM": 90
+                                      }
+                                    }
+                                  }
+                                },
+                                "next": {
+                                  "block": {
+                                    "type": "logo_pen_erase",
+                                    "id": "8X^3H=9g75wb@N!pT/+Y",
+                                    "next": {
+                                      "block": {
+                                        "type": "logo_backward",
+                                        "id": "-?w8uvIYpPB-9!XS43`z",
+                                        "inputs": {
+                                          "DIST": {
+                                            "shadow": {
+                                              "type": "math_number",
+                                              "id": "$-CVTU|iOuosA4$J}VAU",
+                                              "fields": {
+                                                "NUM": 50
+                                              }
+                                            }
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        ]
+      }
+    },
+    "xml": "<xml xmlns=\"https://developers.google.com/blockly/xml\"><block type=\"logo_when_run\" id=\"h-fzxNHlh6}-w]kXoCT=\" x=\"201\" y=\"76\"><next><block type=\"logo_set_color\" id=\"S(`(qJ5=pEu7QR=qPst,\"><field name=\"COLOR\">7</field><next><block type=\"logo_set_width\" id=\"_h^LT{EscXL?(|~{[wfk\"><value name=\"WIDTH\"><shadow type=\"math_number\" id=\"KYaT4l0)%wLnfiecH!Jv\"><field name=\"NUM\">5</field></shadow></value><next><block type=\"logo_set_color_num\" id=\"{!:C]o4rKWegVD1sjE*p\"><value name=\"COLOR\"><shadow type=\"math_number\" id=\"*wE5/lo%|LCxfDZhtnlq\"><field name=\"NUM\">4</field></shadow></value><next><block type=\"logo_repeat\" id=\"2;{0JCV1Tf1vD9]]3COX\"><value name=\"TIMES\"><shadow type=\"math_number\" id=\"z+m6kLqBfFR9sxX1rN*a\"><field name=\"NUM\">4</field></shadow></value><statement name=\"DO\"><block type=\"logo_forward\" id=\"gNA]])CpP*~W5m::?rP[\"><value name=\"DIST\"><shadow type=\"math_number\" id=\"Dn.[ZP=#rGe~@U;NMuKc\"><field name=\"NUM\">100</field></shadow></value><next><block type=\"logo_turn_right\" id=\"Iu[i%G,1VCuzr]^o++M.\"><value name=\"ANGLE\"><shadow type=\"math_number\" id=\"W=$]fu!Cu?MDp]_p%a}/\"><field name=\"NUM\">90</field></shadow></value></block></next></block></statement><next><block type=\"logo_turn_left\" id=\"7DO1RB@2j)Rqptj8T+`K\"><value name=\"ANGLE\"><shadow type=\"math_number\" id=\"X:b.CSu@*+?OM[%_1.)#\"><field name=\"NUM\">90</field></shadow></value><next><block type=\"logo_pen_erase\" id=\"8X^3H=9g75wb@N!pT/+Y\"><next><block type=\"logo_backward\" id=\"-?w8uvIYpPB-9!XS43`z\"><value name=\"DIST\"><shadow type=\"math_number\" id=\"$-CVTU|iOuosA4$J}VAU\"><field name=\"NUM\">50</field></shadow></value></block></next></block></next></block></next></block></next></block></next></block></next></block></next></block></xml>"
+  }
+}

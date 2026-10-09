@@ -1,0 +1,1082 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>XLogo - Entorno de Programación de Tortuga 2D/3D</title>
+    <!-- Local Fonts (Fira Code, Inter, Outfit) -->
+    <link rel="stylesheet" href="css/fonts.css">
+    <!-- Local FontAwesome Icons -->
+    <link rel="stylesheet" href="css/all.min.css">
+    <!-- Local Google Blockly Library -->
+    <script src="js/blockly.min.js"></script>
+    <script src="js/es.js"></script>
+    <!-- Favicon Icons -->
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <link rel="icon" type="image/png" sizes="32x32" href="favicon.png">
+    <!-- CSS App Stylesheet -->
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body class="dark-theme">
+    <!-- Main Application Header -->
+    <header class="app-header">
+        <div class="logo-brand" id="logo-brand" style="cursor: pointer;" title="Ver Desarrolladores y Créditos de XLogo Pro">
+            <div class="turtle-icon">🐢</div>
+            <div class="brand-text">
+                <h1>XLogo <span>Pro</span></h1>
+            </div>
+        </div>
+
+        <!-- Mode Switcher Navigation -->
+        <nav class="mode-switcher">
+            <button id="btn-mode-a" class="mode-btn active" title="Entorno tradicional de línea de comandos">
+                <i class="fa-solid fa-terminal"></i>
+                <span>Modo A: Consola & Comandos</span>
+            </button>
+            <button id="btn-mode-b" class="mode-btn" title="Entorno de programación por bloques estilo Scratch">
+                <i class="fa-solid fa-cubes"></i>
+                <span>Modo B: Bloques (Visual)</span>
+            </button>
+        </nav>
+
+        <!-- Top Action Bar -->
+        <div class="header-actions">
+            <div class="example-selector-wrapper">
+                <i class="fa-solid fa-wand-magic-sparkles"></i>
+                <select id="example-select">
+                    <option value="">-- Cargar Ejemplo --</option>
+                    <option value="cuadrado">Cuadrado Básico</option>
+                    <option value="estrella">Estrella de 5 Puntas</option>
+                    <option value="espiral">Espiral Multicolor</option>
+                    <option value="flor">Flor de Mandalas</option>
+                    <option value="arbol">Árbol Fractal</option>
+                    <option value="cubo">Perspectiva Cubo 3D</option>
+                </select>
+            </div>
+
+            <button id="btn-save-project" class="action-btn btn-secondary"
+                title="Guardar Proyecto o Código (.xlogo / .logo)" style="background: #4ba6a6;"">
+                <i class=" fa-solid fa-floppy-disk"></i>
+                <span>Guardar</span>
+            </button>
+
+            <button id="btn-load-project" class="action-btn btn-secondary"
+                title="Cargar Proyecto o Código (.xlogo / .logo)" style="background: #c058ab;">
+                <i class="fa-solid fa-folder-open"></i>
+                <span>Cargar</span>
+            </button>
+
+            <input type="file" id="file-input-load" accept=".xlogo,.json,.logo,.txt" style="display: none;">
+
+            <button id="btn-clear" class="action-btn btn-secondary" title="Limpiar Dibujo">
+                <i class="fa-solid fa-eraser"></i>
+                <span>Limpiar</span>
+            </button>
+
+            <div class="speed-control" title="Velocidad de Animación de la Tortuga">
+                <i class="fa-solid fa-bolt"></i>
+                <input type="range" id="speed-slider" min="1" max="100" value="70">
+                <span id="speed-val">70%</span>
+            </div>
+
+            <button id="btn-export-img" class="action-btn btn-icon" title="Exportar Dibujo PNG">
+                <i class="fa-solid fa-image"></i>
+            </button>
+
+            <button id="btn-help" class="action-btn btn-secondary" style="background: #a4a64b;"
+                title="Guía de Comandos y Ejemplos">
+                <i class="fa-solid fa-book-open"></i>
+            </button>
+
+            <button id="btn-fullscreen" class="action-btn btn-icon" title="Pantalla Completa (F11)"
+                style="background: #60c962;">
+                <i class="fa-solid fa-expand"></i>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="app-main">
+
+        <!-- ========================================== -->
+        <!-- MODE A: CONSOLA TRADICIONAL & COMANDOS     -->
+        <!-- ========================================== -->
+        <div id="mode-a-view" class="view-panel active">
+            <!-- Top Split: History (Left) & Canvas (Right) -->
+            <div class="mode-a-top-split">
+                <!-- Left: History & Procedures Panel -->
+                <aside class="panel history-panel">
+                    <div class="panel-header">
+                        <h3><i class="fa-solid fa-clock-rotate-left"></i> Historial y Procedimientos</h3>
+                        <button id="btn-clear-history" class="icon-small-btn" title="Limpiar Historial">
+                            <i class="fa-solid fa-trash-can"></i>
+                        </button>
+                    </div>
+                    <div class="panel-body scrollable">
+                        <div class="history-section">
+                            <h4 class="section-title">Comandos Ejecutados</h4>
+                            <ul id="history-list" class="history-list">
+                                <li class="empty-msg">No hay comandos aún. ¡Escribe un comando abajo!</li>
+                            </ul>
+                        </div>
+                        <div class="history-section">
+                            <h4 class="section-title">Procedimientos Definidos (PARA...)</h4>
+                            <ul id="procedure-list" class="procedure-list">
+                                <li class="empty-msg">Ningún procedimiento creado.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </aside>
+
+                <!-- Right: Canvas Viewer Area -->
+                <section class="panel canvas-panel">
+                    <div class="panel-header">
+                        <h3><i class="fa-solid fa-palette"></i> Área de Dibujo (Lienzo 2D)</h3>
+                        <div class="canvas-controls-top">
+                            <!-- Horizontal Pan Slider X (en el área de botones, fuera del lienzo) -->
+                            <div class="header-pan-control" title="Desplazamiento Horizontal X">
+                                <span class="pan-title"><i class="fa-solid fa-arrows-left-right"></i> X:</span>
+                                <input type="range" class="header-pan-slider" id="slider-pan-x-a" min="-800" max="800" value="0" step="5">
+                                <span class="pan-val-badge" id="val-pan-x-a">0px</span>
+                            </div>
+
+                            <label class="toggle-switch" title="Mostrar u ocultar cuadrícula">
+                                <input type="checkbox" id="chk-grid" checked>
+                                <span class="slider"></span>
+                                <span class="label-text"><i class="fa-solid fa-border-all"></i> Cuadrícula</span>
+                            </label>
+                            <span class="turtle-info" id="turtle-info-badge">
+                                <i class="fa-solid fa-location-crosshairs"></i> X: 0 | Y: 0 | Ángulo: 0°
+                            </span>
+                        </div>
+                    </div>
+                    <div class="panel-body canvas-wrapper" id="canvas-container">
+                        <canvas id="turtle-canvas" width="900" height="600"></canvas>
+
+                        <div class="canvas-zoom-toolbar">
+                            <button id="btn-zoom-in" class="zoom-btn" title="Acercar (Zoom +)"><i
+                                    class="fa-solid fa-plus"></i></button>
+                            <button id="btn-zoom-reset" class="zoom-btn" title="Restablecer vista (100% y Centrar)"><i
+                                    class="fa-solid fa-arrows-to-dot"></i></button>
+                            <button id="btn-zoom-out" class="zoom-btn" title="Alejar (Zoom -)"><i
+                                    class="fa-solid fa-minus"></i></button>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Vertical Pan Slider Y (en vertical en el body, girado 90º) -->
+                <aside class="body-vertical-slider-bar" id="pan-bar-y-a" title="Desplazamiento Vertical Y (Slider Vertical)">
+                    <span class="pan-title-v"><i class="fa-solid fa-arrows-up-down"></i> Y</span>
+                    <div class="vertical-slider-wrapper">
+                        <input type="range" class="body-slider-v" id="slider-pan-y-a" min="-800" max="800" value="0" step="5">
+                    </div>
+                    <span class="pan-val-badge-v" id="val-pan-y-a">0px</span>
+                </aside>
+            </div>
+
+            <!-- Bottom: 35% Height Command Terminal Panel -->
+            <footer class="mode-a-bottom-terminal">
+                <div class="panel terminal-panel">
+                    <div class="panel-header">
+                        <div class="terminal-tabs">
+                            <button id="tab-cmd-line" class="tab-btn active"><i class="fa-solid fa-terminal"></i> Línea
+                                de Comandos Rápida</button>
+                            <button id="tab-multi-editor" class="tab-btn"><i class="fa-solid fa-code"></i> Editor de
+                                Código (Procedimientos)</button>
+                        </div>
+
+                    </div>
+                    <div class="panel-body terminal-body">
+                        <!-- Single Line Console Mode -->
+                        <div id="view-cmd-line" class="terminal-subview active">
+                            <div class="prompt-input-row">
+                                <span class="prompt-symbol">LOGO&gt;</span>
+                                <input type="text" id="cmd-input"
+                                    placeholder="Escribe un comando aquí (ej. repite 4 [ adelante 100 derecha 90 ]) y presiona Enter..."
+                                    autocomplete="off" spellcheck="false">
+                                <button id="btn-send-cmd" class="btn-send"><i class="fa-solid fa-paper-plane"></i>
+                                    Ejecutar</button>
+                            </div>
+                            <div class="terminal-feedback" id="terminal-feedback">
+                                <i class="fa-solid fa-circle-info"></i> Escribe comandos en español (ej.
+                                <code>adelante 100</code>, <code>derecha 90</code>, <code>borra</code>,
+                                <code>repite 8 [ av 50 gd 45 ]</code>) o usa las flechas arriba/abajo.
+                            </div>
+                        </div>
+
+                        <!-- Multi-line Editor Mode -->
+                        <div id="view-multi-editor" class="terminal-subview">
+                            <div class="editor-textarea-wrapper">
+                                <textarea id="multi-code-editor" spellcheck="false"
+                                    placeholder="Escribe tu programa completo o procedimientos aquí:&#10;&#10;PARA CUADRADO_VARIABLE :LADO&#10;  REPETE 4 [ADELANTE :LADO DERECHA 90]&#10;FIN&#10;&#10;CUADRADO_VARIABLE 120"></textarea>
+                            </div>
+                            <div class="editor-bar">
+                                <span>Press <kbd>Ctrl</kbd> + <kbd>Enter</kbd> para ejecutar</span>
+                                <div class="editor-btn-group" style="display: flex; gap: 8px; align-items: center;">
+                                    <button id="btn-save-console" class="btn-small-outline"
+                                        title="Guardar Código Logo (.logo / .xlogo)">
+                                        <i class="fa-solid fa-floppy-disk"></i> Guardar Código
+                                    </button>
+                                    <button id="btn-load-console" class="btn-small-outline" title="Cargar Código Logo">
+                                        <i class="fa-solid fa-folder-open"></i> Cargar Código
+                                    </button>
+                                    <button id="btn-run-editor" class="action-btn btn-run"><i
+                                            class="fa-solid fa-play"></i>
+                                        Ejecutar Programa</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </footer>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- MODE B: BLOQUES VISUALES ESTILO SCRATCH    -->
+        <!-- ========================================== -->
+        <div id="mode-b-view" class="view-panel">
+            <div class="mode-b-grid">
+                <!-- Column 1 & 2: Blockly Workspace Area -->
+                <section class="panel blockly-workspace-panel">
+                    <div class="panel-header">
+                        <h3><i class="fa-solid fa-cubes-stacked"></i> Programación por Bloques Visuales</h3>
+                        <div class="blockly-actions">
+                            <button id="btn-save-blocks" class="btn-small-outline"
+                                title="Guardar Bloques y Código (.xlogo)">
+                                <i class="fa-solid fa-floppy-disk"></i> Guardar Bloques
+                            </button>
+                            <button id="btn-load-blocks" class="btn-small-outline" title="Cargar Bloques y Código">
+                                <i class="fa-solid fa-folder-open"></i> Cargar Bloques
+                            </button>
+                            <button id="btn-blockly-to-code" class="btn-small-outline"
+                                title="Ver código Logo equivalente">
+                                <i class="fa-solid fa-code"></i> Ver Código Logo
+                            </button>
+                        </div>
+                    </div>
+                    <div class="panel-body blockly-container-wrapper">
+                        <div id="blocklyDiv"></div>
+                    </div>
+                </section>
+
+                <!-- Column 3: Live Canvas Preview -->
+                <section class="panel canvas-panel-b">
+                    <div class="panel-header">
+                        <h3><i class="fa-solid fa-display"></i> Resultado del Trazado</h3>
+                        <div class="canvas-controls-top">
+                            <!-- Horizontal Pan Slider X (en el área de botones, fuera del lienzo) -->
+                            <div class="header-pan-control" title="Desplazamiento Horizontal X">
+                                <span class="pan-title"><i class="fa-solid fa-arrows-left-right"></i> X:</span>
+                                <input type="range" class="header-pan-slider" id="slider-pan-x-b" min="-800" max="800" value="0" step="5">
+                                <span class="pan-val-badge" id="val-pan-x-b">0px</span>
+                            </div>
+
+                            <label class="toggle-switch" title="Mostrar u ocultar cuadrícula">
+                                <input type="checkbox" id="chk-grid-b" checked>
+                                <span class="slider"></span>
+                                <span class="label-text"><i class="fa-solid fa-border-all"></i> Cuadrícula</span>
+                            </label>
+                            <button id="btn-run-blockly" class="action-btn btn-run btn-small">
+                                <i class="fa-solid fa-play"></i> Ejecutar Bloques
+                            </button>
+                        </div>
+                    </div>
+                    <div class="panel-body canvas-wrapper" id="canvas-container-b">
+                        <canvas id="turtle-canvas-b" width="600" height="600"></canvas>
+
+                        <div class="canvas-zoom-toolbar">
+                            <button id="btn-zoom-in-b" class="zoom-btn" title="Acercar (Zoom +)"><i
+                                    class="fa-solid fa-plus"></i></button>
+                            <button id="btn-zoom-reset-b" class="zoom-btn" title="Restablecer vista (100%)"><i
+                                    class="fa-solid fa-arrows-to-dot"></i></button>
+                            <button id="btn-zoom-out-b" class="zoom-btn" title="Alejar (Zoom -)"><i
+                                    class="fa-solid fa-minus"></i></button>
+                            <button id="btn-grid-toggle-b" class="zoom-btn" title="Mostrar/Ocultar Cuadrícula"><i
+                                    class="fa-solid fa-border-all"></i></button>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Vertical Pan Slider Y (en vertical en el body, girado 90º) -->
+                <aside class="body-vertical-slider-bar" id="pan-bar-y-b" title="Desplazamiento Vertical Y (Slider Vertical)">
+                    <span class="pan-title-v"><i class="fa-solid fa-arrows-up-down"></i> Y</span>
+                    <div class="vertical-slider-wrapper">
+                        <input type="range" class="body-slider-v" id="slider-pan-y-b" min="-800" max="800" value="0" step="5">
+                    </div>
+                    <span class="pan-val-badge-v" id="val-pan-y-b">0px</span>
+                </aside>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Modal for Code Preview -->
+    <div id="code-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fa-solid fa-code"></i> Código Logo Generado desde Bloques</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <pre><code id="generated-code-display">// El código generado aparecerá aquí...</code></pre>
+            </div>
+            <div class="modal-footer">
+                <button id="btn-copy-generated-code" class="action-btn btn-secondary"><i class="fa-solid fa-copy"></i>
+                    Copiar Código</button>
+                <button id="btn-send-to-editor" class="action-btn btn-run"><i
+                        class="fa-solid fa-arrow-right-to-bracket"></i> Enviar al Modo Consola</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for Saving Program -->
+    <div id="save-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fa-solid fa-floppy-disk"></i> Guardar Programa / Proyecto</h3>
+                <button class="modal-close save-modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group" style="margin-bottom: 16px;">
+                    <label
+                        style="display: block; margin-bottom: 8px; font-weight: 600; color: var(--text-primary);">Nombre
+                        del archivo:</label>
+                    <input type="text" id="save-filename-input" value="mi_programa_xlogo"
+                        style="width: 100%; padding: 10px 12px; border-radius: var(--radius-sm); border: 1px solid var(--border-color); background: rgba(0, 0, 0, 0.4); color: #ffffff; font-family: var(--font-body); font-size: 14px; outline: none;">
+                </div>
+                <div class="form-group">
+                    <label
+                        style="display: block; margin-bottom: 8px; font-weight: 600; color: var(--text-primary);">Formato
+                        de Guardado:</label>
+                    <div class="save-type-options" style="display: flex; flex-direction: column; gap: 10px;">
+                        <label class="save-type-card active"
+                            style="display: flex; align-items: flex-start; gap: 12px; padding: 14px; background: rgba(0, 230, 118, 0.08); border: 1px solid var(--accent-green); border-radius: var(--radius-sm); cursor: pointer;">
+                            <input type="radio" name="save-format" value="xlogo" checked
+                                style="margin-top: 3px; accent-color: var(--accent-green);">
+                            <div>
+                                <strong style="color: var(--accent-green);"><i class="fa-solid fa-file-code"></i>
+                                    Proyecto XLogo (.xlogo / JSON)</strong>
+                                <p
+                                    style="font-size: 12px; color: var(--text-secondary); margin-top: 4px; line-height: 1.4;">
+                                    Recomendado. Guarda la estructura completa: bloques visuales de Blockly, código de
+                                    consola, historial y estado del modo.
+                                </p>
+                            </div>
+                        </label>
+                        <label class="save-type-card"
+                            style="display: flex; align-items: flex-start; gap: 12px; padding: 14px; background: rgba(0, 0, 0, 0.3); border: 1px solid var(--border-color); border-radius: var(--radius-sm); cursor: pointer;">
+                            <input type="radio" name="save-format" value="logo"
+                                style="margin-top: 3px; accent-color: var(--accent-cyan);">
+                            <div>
+                                <strong style="color: var(--accent-cyan);"><i class="fa-solid fa-file-lines"></i> Código
+                                    Fuente Logo (.logo)</strong>
+                                <p
+                                    style="font-size: 12px; color: var(--text-secondary); margin-top: 4px; line-height: 1.4;">
+                                    Guarda el texto plano de las instrucciones y procedimientos Logo para ejecutar en
+                                    cualquier consola Logo.
+                                </p>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="action-btn btn-secondary save-modal-close">Cancelar</button>
+                <button id="btn-confirm-save" class="action-btn btn-run"><i class="fa-solid fa-download"></i> Descargar
+                    Archivo</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for Help & Commands Guide -->
+    <div id="help-modal" class="modal-overlay">
+        <div class="modal-content modal-large">
+            <div class="modal-header">
+                <h3><i class="fa-solid fa-book-open"></i> Guía Completa de Comandos Logo & Bloques Visuales</h3>
+                <button class="modal-close help-modal-close">&times;</button>
+            </div>
+            <div class="modal-body scrollable">
+                <div class="help-search-bar">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <input type="text" id="help-search-input"
+                        placeholder="Buscar comando, alias o concepto (ej. adelante, borra, repite, color)...">
+                </div>
+
+                <div class="help-grid" id="help-grid-container">
+                    <!-- Category 1: Movimiento -->
+                    <div class="help-card">
+                        <div class="help-card-header text-cyan">
+                            <i class="fa-solid fa-arrows-up-down-left-right"></i> Movimiento Básico y Posición
+                        </div>
+                        <ul class="help-cmd-list">
+                            <li>
+                                <div class="cmd-syntax">ADELANTE n / AV n / FORWARD n</div>
+                                <div class="cmd-desc">Mueve la tortuga hacia adelante <code>n</code> pasos.</div>
+                                <div class="cmd-example">Ejemplo: <code>adelante 100</code> o <code>av 50</code></div>
+                            </li>
+                            <li>
+                                <div class="cmd-syntax">RETROCEDE n / RE n / BK n / BACKWARD n</div>
+                                <div class="cmd-desc">Mueve la tortuga hacia atrás <code>n</code> pasos.</div>
+                                <div class="cmd-example">Ejemplo: <code>retrocede 60</code> o <code>re 30</code></div>
+                            </li>
+                            <li>
+                                <div class="cmd-syntax">DERECHA n / GD n / DE n / RIGHT n</div>
+                                <div class="cmd-desc">Gira la tortuga a la derecha <code>n</code> grados.</div>
+                                <div class="cmd-example">Ejemplo: <code>derecha 90</code> o <code>gd 45</code></div>
+                            </li>
+                            <li>
+                                <div class="cmd-syntax">IZQUIERDA n / GI n / IZ n / LEFT n</div>
+                                <div class="cmd-desc">Gira la tortuga a la izquierda <code>n</code> grados.</div>
+                                <div class="cmd-example">Ejemplo: <code>izquierda 90</code> o <code>gi 120</code></div>
+                            </li>
+                            <li>
+                                <div class="cmd-syntax">PONPOS x y / PONXY x y / IR_A x y</div>
+                                <div class="cmd-desc">Mueve la tortuga a las coordenadas `X` e `Y` especificadas.</div>
+                                <div class="cmd-example">Ejemplo: <code>ponpos 100 -50</code></div>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <!-- Category 2: Formas Geométricas y Relleno -->
+                    <div class="help-card">
+                        <div class="help-card-header text-orange">
+                            <i class="fa-solid fa-shapes"></i> Formas Geométricas y Relleno
+                        </div>
+                        <ul class="help-cmd-list">
+                            <li>
+                                <div class="cmd-syntax">CIRCULO radio / CIRCLE r</div>
+                                <div class="cmd-desc">Dibuja un círculo centrado en la posición actual de la tortuga.
+                                </div>
+                                <div class="cmd-example">Ejemplo: <code>circulo 50</code></div>
+                            </li>
+                            <li>
+                                <div class="cmd-syntax">CIRCULORELLENO radio / PARC 360 r</div>
+                                <div class="cmd-desc">Dibuja un círculo completamente relleno con el color actual.</div>
+                                <div class="cmd-example">Ejemplo: <code>circulorelleno 40</code> o
+                                    <code>parc 360 40</code>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="cmd-syntax">ELIPSE rx ry / ELLIPSE rx ry</div>
+                                <div class="cmd-desc">Dibuja una elipse con radio horizontal <code>rx</code> y radio
+                                    vertical <code>ry</code>.</div>
+                                <div class="cmd-example">Ejemplo: <code>elipse 100 50</code></div>
+                            </li>
+                            <li>
+                                <div class="cmd-syntax">ELIPSERELLENA rx ry / PALE rx ry 360</div>
+                                <div class="cmd-desc">Dibuja una elipse completamente rellena.</div>
+                                <div class="cmd-example">Ejemplo: <code>elipserellena 80 40</code></div>
+                            </li>
+                            <li>
+                                <div class="cmd-syntax">PONCOLORRELLENO color / SETFLOODCOLOR color</div>
+                                <div class="cmd-desc">Establece el color que usará la herramienta de relleno.</div>
+                                <div class="cmd-example">Ejemplo: <code>poncolorrelleno rojo</code></div>
+                            </li>
+                            <li>
+                                <div class="cmd-syntax">RELLENA / FILL</div>
+                                <div class="cmd-desc">Rellena el área delimitada o figura cerrada en la posición actual
+                                    de la tortuga.</div>
+                                <div class="cmd-example">Ejemplo: <code>subelapiz av 20 rellena</code></div>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <!-- Category 3: Lápiz y Colores -->
+                    <div class="help-card">
+                        <div class="help-card-header text-green">
+                            <i class="fa-solid fa-pen-ruler"></i> Control del Lápiz y Colores
+                        </div>
+                        <ul class="help-cmd-list">
+                            <li>
+                                <div class="cmd-syntax">SUBELAPIZ / SP / SL / PENUP</div>
+                                <div class="cmd-desc">Levanta el lápiz para moverse sin dejar rastro ni dibujar.</div>
+                                <div class="cmd-example">Ejemplo: <code>subelapiz av 50 bajalapiz</code></div>
+                            </li>
+                            <li>
+                                <div class="cmd-syntax">BAJALAPIZ / CP / BL / LAPIZ / PENDOWN</div>
+                                <div class="cmd-desc">Apoya el lápiz para volver a dibujar líneas al desplazarse.</div>
+                            </li>
+                            <li>
+                                <div class="cmd-syntax">BORRA / PE / BORRADOR</div>
+                                <div class="cmd-desc"><strong>Lápiz Borrador:</strong> Cambia al modo goma de borrar. Al
+                                    desplazarte sobre líneas dibujadas, estas desaparecerán.</div>
+                                <div class="cmd-example">Ejemplo: <code>borra re 100 lapiz</code></div>
+                            </li>
+                            <li>
+                                <div class="cmd-syntax">PONCOLOR color / PC n</div>
+                                <div class="cmd-desc">Cambia el color del lápiz. Acepta nombres (<code>verde</code>,
+                                    <code>rojo</code>, <code>cian</code>...), códigos `#hex` o los números de la
+                                    <strong>Paleta Oficial (0 a 15)</strong>:
+                                </div>
+                                <div class="color-palette-grid">
+                                    <span class="color-chip"
+                                        style="background:#000000; color:#fff; border: 1px solid #444;">0: Negro</span>
+                                    <span class="color-chip" style="background:#448aff; color:#fff;">1: Azul</span>
+                                    <span class="color-chip" style="background:#00e676; color:#000;">2: Verde</span>
+                                    <span class="color-chip" style="background:#00e5ff; color:#000;">3: Cian</span>
+                                    <span class="color-chip" style="background:#ff5252; color:#fff;">4: Rojo</span>
+                                    <span class="color-chip" style="background:#ff4081; color:#fff;">5: Rosa</span>
+                                    <span class="color-chip" style="background:#ffd600; color:#000;">6: Amarillo</span>
+                                    <span class="color-chip" style="background:#ffffff; color:#000;">7: Blanco</span>
+                                    <span class="color-chip" style="background:#ff9100; color:#000;">8: Naranja</span>
+                                    <span class="color-chip" style="background:#e040fb; color:#fff;">9: Violeta</span>
+                                    <span class="color-chip" style="background:#8d6e63; color:#fff;">10: Marrón</span>
+                                    <span class="color-chip" style="background:#00b0ff; color:#000;">11: Azul C.</span>
+                                    <span class="color-chip" style="background:#76ff03; color:#000;">12: V. Lima</span>
+                                    <span class="color-chip" style="background:#18ffff; color:#000;">13: Turquesa</span>
+                                    <span class="color-chip" style="background:#ff6e40; color:#fff;">14: Coral</span>
+                                    <span class="color-chip" style="background:#90a4ae; color:#000;">15: Gris</span>
+                                </div>
+                                <div class="cmd-example" style="margin-top: 6px;">Ejemplo: <code>pc verde</code> o
+                                    <code>pc 4</code> o <code>pc 13</code>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="cmd-syntax">PONGROSOR n / PG n / PONANCHO n</div>
+                                <div class="cmd-desc">Establece el grosor de la línea en píxeles. (Ejemplo:
+                                    <code>pongrosor 5</code>).
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <!-- Category 4: Pantalla y Visual -->
+                    <div class="help-card">
+                        <div class="help-card-header text-yellow">
+                            <i class="fa-solid fa-display"></i> Pantalla y Control Visual
+                        </div>
+                        <ul class="help-cmd-list">
+                            <li>
+                                <div class="cmd-syntax">BORRAPANTALLA / BP / LP / LIMPIAR</div>
+                                <div class="cmd-desc">Borra todos los trazos del lienzo y restablece la vista.</div>
+                            </li>
+                            <li>
+                                <div class="cmd-syntax">ORIGEN / HOME / INICIO / CENTRAR</div>
+                                <div class="cmd-desc">Envia la tortuga de regreso al centro del lienzo `(0, 0)`.</div>
+                            </li>
+                            <li>
+                                <div class="cmd-syntax">OCULTARTORTUGA / OT / HIDETURTLE</div>
+                                <div class="cmd-desc">Hace invisible el icono de la tortuga para ver solo el dibujo
+                                    final.</div>
+                            </li>
+                            <li>
+                                <div class="cmd-syntax">MOSTRARTORTUGA / MT / SHOWTURTLE</div>
+                                <div class="cmd-desc">Vuelve a hacer visible el icono de la tortuga.</div>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <!-- Category 5: Bucles y Control de Flujo -->
+                    <div class="help-card">
+                        <div class="help-card-header text-purple">
+                            <i class="fa-solid fa-repeat"></i> Control de Flujo (Bucles y Condicionales)
+                        </div>
+                        <ul class="help-cmd-list">
+                            <li>
+                                <div class="cmd-syntax">REPITE / REPETIR n [ instrucciones ]</div>
+                                <div class="cmd-desc">Repite las instrucciones entre corchetes <code>n</code> veces
+                                    consecutivas.</div>
+                                <div class="cmd-example">Cuadrado: <code>repetir 4 [ adelante 100 derecha 90 ]</code>
+                                </div>
+                                <div class="cmd-example">Estrella: <code>repite 5 [ av 120 gd 144 ]</code></div>
+                            </li>
+                            <li>
+                                <div class="cmd-syntax">MIENTRAS condición [ instrucciones ]</div>
+                                <div class="cmd-desc">Repite las instrucciones mientras la condición sea verdadera.
+                                </div>
+                                <div class="cmd-example">Ejemplo:
+                                    <code>mientras :i &lt; 5 [ av 10 haz "i :i + 1 ]</code>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="cmd-syntax">HAZ [ instrucciones ] MIENTRAS condición</div>
+                                <div class="cmd-desc">Ejecuta las instrucciones al menos una vez y las repite mientras
+                                    la condición sea verdadera.</div>
+                                <div class="cmd-example">Ejemplo:
+                                    <code>haz [ av 10 haz "i :i + 1 ] mientras :i &lt; 5</code>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="cmd-syntax">SI condición [ instrucciones ]</div>
+                                <div class="cmd-desc">Ejecuta las instrucciones entre corchetes solo si la condición se
+                                    cumple.</div>
+                                <div class="cmd-example">Ejemplo: <code>si :i = 5 [ pc rojo av 50 ]</code></div>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <!-- Category 6: Variables e Interacción -->
+                    <div class="help-card">
+                        <div class="help-card-header text-blue">
+                            <i class="fa-solid fa-font"></i> Variables e Interacción
+                        </div>
+                        <ul class="help-cmd-list">
+                            <li>
+                                <div class="cmd-syntax">HAZ "variable valor / MAKE "var val</div>
+                                <div class="cmd-desc">Crea o actualiza el valor de una variable.</div>
+                                <div class="cmd-example">Ejemplo: <code>haz "pasos 100 av :pasos</code></div>
+                            </li>
+                            <li>
+                                <div class="cmd-syntax">PREGUNTA "mensaje / ASK "mensaje</div>
+                                <div class="cmd-desc">Solicita un valor al usuario y guarda el resultado en
+                                    <code>:respuesta</code>.
+                                </div>
+                                <div class="cmd-example">Ejemplo:
+                                    <code>pregunta "¿Cuántos lados?" repite :respuesta [ av 50 gd 360 / :respuesta ]</code>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="cmd-syntax">ESCRIBE texto / IMPRIME texto / ETIQUETA texto</div>
+                                <div class="cmd-desc">Imprime un texto o el resultado de una expresión en la consola de
+                                    comandos.</div>
+                                <div class="cmd-example">Ejemplo: <code>escribe :respuesta</code></div>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <!-- Category 7: Procedimientos (PARA ... FIN) -->
+                    <div class="help-card">
+                        <div class="help-card-header text-red">
+                            <i class="fa-solid fa-code"></i> Procedimientos (Funciones)
+                        </div>
+                        <ul class="help-cmd-list">
+                            <li>
+                                <div class="cmd-syntax">PARA nombre :param1 :param2 ... [instrucciones] FIN</div>
+                                <div class="cmd-desc">Define una nueva función reutilizable con variables opcionales.
+                                </div>
+                                <div class="cmd-example">
+                                    <pre>PARA CUADRADO_VARIABLE :LADO
+  REPITE 4 [ADELANTE :LADO DERECHA 90]
+FIN
+
+CUADRADO_VARIABLE 150</pre>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <!-- Category 6: Modo Bloques Visuales -->
+                    <div class="help-card">
+                        <div class="help-card-header text-cyan">
+                            <i class="fa-solid fa-cubes"></i> Equivalencias en Modo Bloques (Scratch)
+                        </div>
+                        <ul class="help-cmd-list">
+                            <li>
+                                <div class="cmd-desc">En el <strong>Modo B (Bloques)</strong>, puedes arrastrar bloques
+                                    desde la izquierda:</div>
+                                <div class="cmd-desc">🧩 <strong>Movimiento:</strong> Bloques azules de avanzar,
+                                    retroceder y girar.</div>
+                                <div class="cmd-desc">🎨 <strong>Lápiz y Color:</strong> Bloques celestes de subir/bajar
+                                    lápiz, modo borrador y color.</div>
+                                <div class="cmd-desc">🔄 <strong>Control:</strong> Bloques amarillos de repetición y
+                                    bucles.</div>
+                                <div class="cmd-desc">💡 Al hacer clic en <strong>Ver Código Logo</strong>, verás las
+                                    instrucciones de texto equivalentes.</div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="action-btn btn-run help-modal-close"><i class="fa-solid fa-check"></i> Entendido</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for Variable Creation -->
+    <div id="variable-modal" class="modal-overlay">
+        <div class="modal-content modal-small">
+            <div class="modal-header">
+                <h3><i class="fa-solid fa-square-plus"></i> Crear Nueva Variable</h3>
+                <button class="modal-close var-modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p id="var-modal-msg" style="margin-bottom: 12px; font-weight: 500; color: #b0bec5;">Nombre de la nueva
+                    variable:</p>
+                <input type="text" id="var-modal-input" class="modal-text-input"
+                    placeholder="Ej. lado, contador, pasos..." autocomplete="off" spellcheck="false">
+            </div>
+            <div class="modal-footer">
+                <button id="btn-var-cancel" class="action-btn btn-secondary var-modal-close">Cancelar</button>
+                <button id="btn-var-confirm" class="action-btn btn-run"><i class="fa-solid fa-check"></i>
+                    Aceptar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for Credits / Developers -->
+    <div id="credits-modal" class="modal-overlay">
+        <div class="modal-content modal-large credits-modal-content">
+            <div class="modal-header">
+                <h3><i class="fa-solid fa-code"></i> Créditos y Equipo de Desarrollo</h3>
+                <button class="modal-close credits-modal-close">&times;</button>
+            </div>
+            <div class="modal-body scrollable">
+                <div class="credits-header-banner">
+                    <div class="credits-logo">🐢 XLogo <span>Pro</span></div>
+                    <p class="credits-subtext">Entorno Educativo de Programación Logo & Bloques Visuales</p>
+                </div>
+
+                <div class="credits-devs-container">
+                    <!-- Desarrollador 1: Mike López -->
+                    <div class="credits-dev-card card-mike">
+                        <div class="dev-avatar-circle">👨‍💻</div>
+                        <div class="dev-info-box">
+                            <span class="dev-role-badge badge-mike">Creador & Desarrollador Principal</span>
+                            <h4>Mike López</h4>
+                            <p class="dev-description">Diseño pedagógico, arquitectura de la aplicación, motor Logo de geometría de tortuga y concepto interactivo.</p>
+                            <div class="dev-tags">
+                                <span>🎮 Logo Programming</span>
+                                <span>🧠 Pensamiento Computacional</span>
+                                <span>📐 Geometría Fractal</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Desarrollador 2: Antigravity AI -->
+                    <div class="credits-dev-card card-ai">
+                        <div class="dev-avatar-circle">🤖</div>
+                        <div class="dev-info-box">
+                            <span class="dev-role-badge badge-ai">Google DeepMind - Pair Programmer AI</span>
+                            <h4>Antigravity AI</h4>
+                            <p class="dev-description">Co-desarrollo de integración de bloques Scratch/Blockly, motor de dibujo Canvas, sintaxis e intérprete Logo.</p>
+                            <div class="dev-tags">
+                                <span>⚡ Blockly Engine</span>
+                                <span>🎨 Canvas 2D Rendering</span>
+                                <span>💻 Interpreter & Parser</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="credits-tech-section">
+                    <h5><i class="fa-solid fa-layer-group"></i> Tecnologías Utilizadas</h5>
+                    <div class="tech-badges-grid">
+                        <span class="tech-chip"><i class="fa-brands fa-html5"></i> HTML5 Canvas</span>
+                        <span class="tech-chip"><i class="fa-brands fa-js"></i> ES6+ Vanilla JS</span>
+                        <span class="tech-chip"><i class="fa-solid fa-cubes"></i> Google Blockly</span>
+                        <span class="tech-chip"><i class="fa-solid fa-terminal"></i> Logo Interpreter</span>
+                        <span class="tech-chip"><i class="fa-solid fa-mobile-screen"></i> Touch & Responsive</span>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="action-btn btn-run credits-modal-close"><i class="fa-solid fa-check"></i> Entendido</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Blockly XML Toolbox Definition -->
+    <xml id="toolbox" style="display: none">
+        <category name="Eventos" colour="#FFBF00">
+            <block type="logo_when_run"></block>
+        </category>
+        <category name="Movimiento" colour="#4C97FF">
+            <block type="logo_forward">
+                <value name="DIST">
+                    <shadow type="math_number">
+                        <field name="NUM">100</field>
+                    </shadow>
+                </value>
+            </block>
+            <block type="logo_backward">
+                <value name="DIST">
+                    <shadow type="math_number">
+                        <field name="NUM">50</field>
+                    </shadow>
+                </value>
+            </block>
+            <block type="logo_turn_right">
+                <value name="ANGLE">
+                    <shadow type="math_number">
+                        <field name="NUM">90</field>
+                    </shadow>
+                </value>
+            </block>
+            <block type="logo_turn_left">
+                <value name="ANGLE">
+                    <shadow type="math_number">
+                        <field name="NUM">90</field>
+                    </shadow>
+                </value>
+            </block>
+            <block type="logo_goto">
+                <value name="X">
+                    <shadow type="math_number">
+                        <field name="NUM">0</field>
+                    </shadow>
+                </value>
+                <value name="Y">
+                    <shadow type="math_number">
+                        <field name="NUM">0</field>
+                    </shadow>
+                </value>
+            </block>
+            <block type="logo_set_x">
+                <value name="X">
+                    <shadow type="math_number">
+                        <field name="NUM">0</field>
+                    </shadow>
+                </value>
+            </block>
+            <block type="logo_set_y">
+                <value name="Y">
+                    <shadow type="math_number">
+                        <field name="NUM">0</field>
+                    </shadow>
+                </value>
+            </block>
+            <block type="logo_get_x"></block>
+            <block type="logo_get_y"></block>
+            <block type="logo_home"></block>
+        </category>
+        <category name="Dibujo y Lápiz" colour="#0FBD8C">
+            <block type="logo_pen_up"></block>
+            <block type="logo_pen_down"></block>
+            <block type="logo_pen_erase"></block>
+            <block type="logo_set_color"></block>
+            <block type="logo_set_color_num">
+                <value name="COLOR">
+                    <shadow type="math_number">
+                        <field name="NUM">4</field>
+                    </shadow>
+                </value>
+            </block>
+            <block type="logo_color_rgb">
+                <value name="R">
+                    <shadow type="math_number">
+                        <field name="NUM">255</field>
+                    </shadow>
+                </value>
+                <value name="G">
+                    <shadow type="math_number">
+                        <field name="NUM">0</field>
+                    </shadow>
+                </value>
+                <value name="B">
+                    <shadow type="math_number">
+                        <field name="NUM">0</field>
+                    </shadow>
+                </value>
+            </block>
+            <block type="logo_set_width">
+                <value name="WIDTH">
+                    <shadow type="math_number">
+                        <field name="NUM">5</field>
+                    </shadow>
+                </value>
+            </block>
+            <block type="logo_circle">
+                <value name="RAD">
+                    <shadow type="math_number">
+                        <field name="NUM">100</field>
+                    </shadow>
+                </value>
+            </block>
+            <block type="logo_circle_filled">
+                <value name="RAD">
+                    <shadow type="math_number">
+                        <field name="NUM">100</field>
+                    </shadow>
+                </value>
+            </block>
+            <block type="logo_ellipse">
+                <value name="RX">
+                    <shadow type="math_number">
+                        <field name="NUM">150</field>
+                    </shadow>
+                </value>
+                <value name="RY">
+                    <shadow type="math_number">
+                        <field name="NUM">80</field>
+                    </shadow>
+                </value>
+            </block>
+            <block type="logo_ellipse_filled">
+                <value name="RX">
+                    <shadow type="math_number">
+                        <field name="NUM">150</field>
+                    </shadow>
+                </value>
+                <value name="RY">
+                    <shadow type="math_number">
+                        <field name="NUM">80</field>
+                    </shadow>
+                </value>
+            </block>
+            <block type="logo_set_flood_color"></block>
+            <block type="logo_fill"></block>
+            <block type="logo_clear"></block>
+            <block type="logo_hide_turtle"></block>
+            <block type="logo_show_turtle"></block>
+        </category>
+        <category name="Control y Bucles" colour="#FFAB19">
+            <block type="logo_repeat">
+                <value name="TIMES">
+                    <shadow type="math_number">
+                        <field name="NUM">4</field>
+                    </shadow>
+                </value>
+            </block>
+            <block type="logo_while">
+                <value name="COND">
+                    <shadow type="logo_logic_boolean"></shadow>
+                </value>
+            </block>
+            <block type="logo_do_while">
+                <value name="COND">
+                    <shadow type="logo_logic_boolean"></shadow>
+                </value>
+            </block>
+            <block type="controls_if"></block>
+            <block type="controls_ifelse"></block>
+        </category>
+        <category name="Matemáticas y Lógica" colour="#59C059">
+            <block type="logo_logic_compare">
+                <value name="A">
+                    <shadow type="math_number">
+                        <field name="NUM">10</field>
+                    </shadow>
+                </value>
+                <value name="B">
+                    <shadow type="math_number">
+                        <field name="NUM">5</field>
+                    </shadow>
+                </value>
+            </block>
+            <block type="logo_logic_operation"></block>
+            <block type="logo_logic_negate"></block>
+            <block type="logo_logic_boolean"></block>
+            <block type="logo_math_add">
+                <value name="A">
+                    <shadow type="math_number">
+                        <field name="NUM">1</field>
+                    </shadow>
+                </value>
+                <value name="B">
+                    <shadow type="math_number">
+                        <field name="NUM">1</field>
+                    </shadow>
+                </value>
+            </block>
+            <block type="logo_math_minus">
+                <value name="A">
+                    <shadow type="math_number">
+                        <field name="NUM">10</field>
+                    </shadow>
+                </value>
+                <value name="B">
+                    <shadow type="math_number">
+                        <field name="NUM">5</field>
+                    </shadow>
+                </value>
+            </block>
+            <block type="logo_math_multiply">
+                <value name="A">
+                    <shadow type="math_number">
+                        <field name="NUM">2</field>
+                    </shadow>
+                </value>
+                <value name="B">
+                    <shadow type="math_number">
+                        <field name="NUM">5</field>
+                    </shadow>
+                </value>
+            </block>
+            <block type="logo_math_divide">
+                <value name="A">
+                    <shadow type="math_number">
+                        <field name="NUM">10</field>
+                    </shadow>
+                </value>
+                <value name="B">
+                    <shadow type="math_number">
+                        <field name="NUM">2</field>
+                    </shadow>
+                </value>
+            </block>
+            <block type="logo_math_power">
+                <value name="A">
+                    <shadow type="math_number">
+                        <field name="NUM">2</field>
+                    </shadow>
+                </value>
+                <value name="B">
+                    <shadow type="math_number">
+                        <field name="NUM">3</field>
+                    </shadow>
+                </value>
+            </block>
+            <block type="logo_math_modulo">
+                <value name="A">
+                    <shadow type="math_number">
+                        <field name="NUM">10</field>
+                    </shadow>
+                </value>
+                <value name="B">
+                    <shadow type="math_number">
+                        <field name="NUM">3</field>
+                    </shadow>
+                </value>
+            </block>
+            <block type="logo_math_single">
+                <value name="NUM">
+                    <shadow type="math_number">
+                        <field name="NUM">9</field>
+                    </shadow>
+                </value>
+            </block>
+            <block type="logo_math_random">
+                <value name="MAX">
+                    <shadow type="math_number">
+                        <field name="NUM">100</field>
+                    </shadow>
+                </value>
+            </block>
+            <block type="logo_math_pi"></block>
+            <block type="math_number"></block>
+        </category>
+        <category name="Texto & Sensores" colour="#FF6680">
+            <block type="logo_text_print">
+                <value name="TEXT">
+                    <shadow type="text">
+                        <field name="TEXT">¡Hola XLogo!</field>
+                    </shadow>
+                </value>
+            </block>
+            <block type="logo_text_join">
+                <value name="A">
+                    <shadow type="text">
+                        <field name="TEXT">Hola </field>
+                    </shadow>
+                </value>
+                <value name="B">
+                    <shadow type="text">
+                        <field name="TEXT">Mundo</field>
+                    </shadow>
+                </value>
+            </block>
+            <block type="logo_text_ask">
+                <value name="TEXT">
+                    <shadow type="text">
+                        <field name="TEXT">¿Cuál es tu nombre?</field>
+                    </shadow>
+                </value>
+            </block>
+            <block type="logo_text_answer"></block>
+            <block type="text"></block>
+        </category>
+        <category name="Variables" colour="#FF8C1A" custom="VARIABLE"></category>
+        <category name="Procedimientos" colour="#FF6680" custom="PROCEDURE"></category>
+    </xml>
+
+    <!-- Application JavaScript Engine Scripts -->
+    <script src="js/turtle.js"></script>
+    <script src="js/interpreter.js"></script>
+    <script src="js/blockly_config.js"></script>
+    <script src="js/app.js"></script>
+</body>
+
+</html>
